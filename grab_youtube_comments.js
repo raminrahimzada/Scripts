@@ -1,7 +1,9 @@
-//scroll all the way down
+//scroll all the way down with to latest comment
 setInterval(function(){
-	window.scrollTo(Number.MAX_VALUE,100000000);	
-},1000);
+	var comment = document.querySelectorAll('ytd-comment-renderer');
+	var c = comment[comment.length-1];
+	c.scrollIntoView();
+},2000);
 //wait a bit so browser will fetch all comments while scrolling
 
 var commentContainers = document.querySelectorAll('ytd-comment-thread-renderer');
