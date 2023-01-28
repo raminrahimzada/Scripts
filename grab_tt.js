@@ -9,7 +9,9 @@ function getVideoId(){
 function gotoNextPage(){
 	document.querySelectorAll('[data-e2e="arrow-right"]')[0].click();
 }
-
+function gotoLoadingDiv(){
+	document.querySelectorAll('[class*="DivReplyActionContainer"] [class*="SvgContainer"]')[0].scrollIntoView()
+}
 function scrollAllDown(after){	
 	var scrollInterval = setInterval(function(){	
 		var commentContainer = document.querySelector("div[class*='DivCommentListContainer']");
@@ -17,6 +19,7 @@ function scrollAllDown(after){
 			var lastComment = commentContainer.childNodes[commentContainer.childNodes.length-1];
 			lastComment.scrollIntoView();
 			document.querySelectorAll("[class*='PReplyActionText']").forEach(x=>x.click());
+			document.querySelectorAll("div[class*='DivActionContainer']").forEach(x=>x.remove())
 		}else{
 			//comments disabled or no comment
 			gotoNextPage();
@@ -71,11 +74,18 @@ function parse(c){
 	
 	return {u,t,o,i};
 }
-
-
-scrollAllDown();
-var ws=new WebSocket('ws://localhost:8081');
-var grabInterval=0;
+function checkForCommentsLoaded(){
+	var actual = document.querySelectorAll("[class*='PCommentText']").length;
+	var expected = document.querySelector("[data-e2e='browse-comment-count']").innerText;
+	expected=parseInt(expected);
+	var percent = actual/expected;
+	if(percent>=0.95){
+		console.log('it seems loading almost completed percentage='+percent);
+		grab();
+	}else{
+		console.log('grabbing percentage='+percent);
+	}
+}
 
 function grab(){
 	if(grabInterval){
@@ -87,5 +97,14 @@ function grab(){
 		grab();
 	},200000);
 }
+
+commentCheckInterval = setInterval(function(){
+		checkForCommentsLoaded();
+	},5000);
+	
+
+scrollAllDown();
+var ws=new WebSocket('ws://localhost:8081');
+var grabInterval=0;
 
 grab();
