@@ -13,9 +13,14 @@ function gotoNextPage(){
 function scrollAllDown(after){	
 	var scrollInterval = setInterval(function(){	
 		var commentContainer = document.querySelector("div[class*='DivCommentListContainer']");
-		var lastComment = commentContainer.childNodes[commentContainer.childNodes.length-1];
-		lastComment.scrollIntoView();
-		document.querySelectorAll("[class*='PReplyActionText']").forEach(x=>x.click());
+		if(commentContainer){
+			var lastComment = commentContainer.childNodes[commentContainer.childNodes.length-1];
+			lastComment.scrollIntoView();
+			document.querySelectorAll("[class*='PReplyActionText']").forEach(x=>x.click());
+		}else{
+			//comments disabled or no comment
+			gotoNextPage();
+		}
 	},3000);
 }
 
@@ -75,6 +80,7 @@ var grabInterval=0;
 function grab(){
 	if(grabInterval){
 		clearInterval(grabInterval);
+		grabInterval=0;
 	}
 	grabComments();
 	grabInterval = setInterval(function(){
