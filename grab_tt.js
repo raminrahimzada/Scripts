@@ -68,22 +68,34 @@ function parse(c){
 	var t=textContainer.innerText;
 	
 	if(replyContainer){
-		var c=parse(replyContainer);
+		var replies=replyContainer.querySelectorAll('[class*="DivCommentContentContainer"]');
+		var c=Array.from(replies).map(x=>parse(x))
 		return {u,t,c,o,i};
 	}
 	
 	return {u,t,o,i};
 }
+var lastGrabPercentage = -1;
+var theSamePercentageCounter=0;
+
 function checkForCommentsLoaded(){
 	var actual = document.querySelectorAll("[class*='PCommentText']").length;
 	var expected = document.querySelector("[data-e2e='browse-comment-count']").innerText;
 	expected=parseInt(expected);
 	var percent = actual/expected;
-	if(percent>=0.95){
-		console.log('it seems loading almost completed percentage='+percent);
+	if(percent==lastGrabPercentage){
+		theSamePercentageCounter=theSamePercentageCounter+1;
+	}else{
+		theSamePercentageCounter=0;
+		lastGrabPercentage=percent;
+	}
+	if(expected==0||percent>=0.95||theSamePercentageCounter>5){
+		consolelog('it seems loading almost completed percentage='+percent+' lastGrabPercentage='+lastGrabPercentage+' theSamePercentageCounter='+theSamePercentageCounter);
+		lastGrabPercentage=-1;
+		theSamePercentageCounter=0;
 		grab();
 	}else{
-		console.log('grabbing percentage='+percent);
+		consolelog('grabbing percentage='+percent+' lastGrabPercentage='+lastGrabPercentage+' theSamePercentageCounter='+theSamePercentageCounter);
 	}
 }
 
@@ -102,9 +114,17 @@ commentCheckInterval = setInterval(function(){
 		checkForCommentsLoaded();
 	},5000);
 	
-
+var tmp=console.log;
+consolelog=tmp;
+console.log=function(){}
+console.error=function(){}
+console.warn=function(){}
 scrollAllDown();
 var ws=new WebSocket('ws://localhost:8081');
 var grabInterval=0;
 
 grab();
+
+	
+https://qol.az/news/?name=xeber&nov=dc2022
+
